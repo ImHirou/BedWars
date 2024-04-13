@@ -1,0 +1,8 @@
+name: BedWars
+version: '${version}'
+main: me.secretlovers.bedwars.BedWars
+api-version: '1.16'
+
+commands:
+  warp:
+  game:
