@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 public class GameCommand implements CommandExecutor {
 
-    private BedWars plugin;
+    private final BedWars plugin;
 
     public GameCommand() {
         plugin = BedWars.plugin;
@@ -21,21 +21,32 @@ public class GameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        GameManager gameManager = plugin.getGameManager();
+
+        if(args[0].equals("create") && args.length == 1) {
+            gameManager.addGame();
+            return true;
+        }
+
         if(!(sender instanceof Player player)) return true;
 
-        if(args[0].equals("list")) {
-            for(Game game : GameManager.games) {
-                player.sendMessage(String.valueOf(game.getId()));
+        if(args.length == 1) {
+            if(args[0].equals("list")) {
+                for(Game game : gameManager.getGames()) {
+                    player.sendMessage(String.valueOf(game.getId()));
+                }
+                return true;
             }
         }
-        if(args[0].equals("join")) {
-            GameManager.games.get(Integer.parseInt(args[1])).addPlayer(new BedWarsPlayer(player));
-        }
-        if(args[0].equals("create")) {
-            GameManager.games.add(new Game(GameManager.games.size(), plugin.getMap()));
-        }
-        if(args[0].equals("finish")) {
-            GameManager.games.get(Integer.parseInt(args[1])).changeGameState(GameState.FINISH);
+        else if(args.length == 2) {
+            if (args[0].equals("join")) {
+                gameManager.getGames().get(Integer.parseInt(args[1])).addPlayer(new BedWarsPlayer(player));
+                return true;
+            }
+            if (args[0].equals("finish")) {
+                gameManager.getGames().get(Integer.parseInt(args[1])).changeGameState(GameState.FINISH);
+                return true;
+            }
         }
 
         return true;

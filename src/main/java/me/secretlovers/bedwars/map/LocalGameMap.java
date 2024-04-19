@@ -1,6 +1,7 @@
 package me.secretlovers.bedwars.map;
 
-import me.secretlovers.bedwars.BedWars;
+import lombok.Getter;
+import me.secretlovers.bedwars.game.resourses.Generator;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -9,12 +10,17 @@ import org.bukkit.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class LocalGameMap implements GameMap{
     private final File sourceWorldFolder;
     private File activeWorldFolder;
     private World bukkitWorld;
     private final String worldName;
+    @Getter
+    private List<Generator> diamondGenerators;
+    @Getter
+    private List<Generator> emeraldGenerators;
 
     public LocalGameMap(File worldFolder, String worldName, boolean loadOnInit) {
         this.sourceWorldFolder = new File(
@@ -23,6 +29,9 @@ public class LocalGameMap implements GameMap{
         );
         this.worldName = worldName;
         if(loadOnInit) load();
+
+        //TODO implement generator locations
+
     }
 
 
@@ -81,4 +90,5 @@ public class LocalGameMap implements GameMap{
     public String getWorldName() {
         return worldName;
     }
+
 }

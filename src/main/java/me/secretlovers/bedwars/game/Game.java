@@ -5,10 +5,9 @@ import me.secretlovers.bedwars.BedWars;
 import me.secretlovers.bedwars.game.team.Team;
 import me.secretlovers.bedwars.game.team.TeamColor;
 import me.secretlovers.bedwars.map.GameMap;
+import me.secretlovers.bedwars.map.LocalGameMap;
 import me.secretlovers.bedwars.utils.LocationUtil;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class Game {
     private GameState gameState;
     private ArrayList<Team> teams = new ArrayList<>();
     private ArrayList<BedWarsPlayer> players = new ArrayList<>();
-    private GameMap gameMap;
+    private final GameMap gameMap;
 
     public Game(int id, GameMap map) {
         this.id    = id;
@@ -33,13 +32,18 @@ public class Game {
             teams.add(new Team(TeamColor.valueOf(key),
                     BedWars.plugin.getConfig().getConfigurationSection("maps").
                             getConfigurationSection(map.getWorldName()).getInt("maxPlayers"),
-                    LocationUtil.fromConfigurationSection(teamSection.getConfigurationSection(key).getConfigurationSection("spawn"), gameMap.getWorld())));
+                    LocationUtil.fromConfigurationSection(teamSection.getConfigurationSection(key).
+                            getConfigurationSection("spawn"), gameMap.getWorld()),
+                    LocationUtil.fromConfigurationSection(teamSection.getConfigurationSection(key).
+                            getConfigurationSection("bed"), gameMap.getWorld()),
+                    LocationUtil.fromConfigurationSection(teamSection.getConfigurationSection(key).
+                            getConfigurationSection("generator"), gameMap.getWorld())));
         }
     }
 
     public void changeGameState(GameState gameState) {
         if(this.gameState == gameState) return;
-        if(this.gameState == GameState.PLAYING && gameState == GameState.STARTING || gameState == GameState.WAITING) return;
+        if(this.gameState == GameState.PLAYING && (gameState == GameState.STARTING || gameState == GameState.WAITING)) return;
 
         switch (gameState) {
 
@@ -53,7 +57,7 @@ public class Game {
                 startingPhase();
                 break;
             case PLAYING:
-
+                playingPhase();
                 break;
             case FINISH:
                 finishPhase();
@@ -77,31 +81,35 @@ public class Game {
         }.runTaskTimer(BedWars.plugin, 20L, 20L);
     }
     private void startingPhase() {
+        ((LocalGameMap) gameMap).getDiamondGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
+        ((LocalGameMap) gameMap).getEmeraldGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
         for(Team team : teams) {
-            team.getPlayers().forEach(player -> {
-                player.getPlayer().teleport(team.getSpawnLocation());
-            });
+            team.getIronGenerator().getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
+            team.getGoldGenerator().getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
+            team.getPlayers().forEach(player -> player.getPlayer().teleport(team.getSpawnLocation()));
         }
     }
+    private void playingPhase() {
+
+    }
     private void finishPhase() {
-        gameMap.getWorld().getPlayers().forEach(player -> {
-            player.kickPlayer("idi nahui");
-        });
         gameMap.unload();
     }
 
     public void addPlayer(BedWarsPlayer player) {
         players.add(player);
         playerChangeTeam(player, teams.get(0));
-        System.out.println(player.getNickname());
-        System.out.println(teams.get(0).getSpawnLocation());
-        System.out.println(teams.get(0).getMaxPlayers());
-        System.out.println(teams.get(0).getTeamColor().toString());
-        System.out.println(teams.get(0));
         waitingPhase();
     }
     public void removePlayer(BedWarsPlayer player) {
         players.remove(player);
+        for(Team team : teams) {
+            team.getPlayers().forEach(bedWarsPlayer -> {
+                if(bedWarsPlayer == player) {
+                    team.getPlayers().remove(player);
+                }
+            });
+        }
     }
     private void playerChangeTeam(BedWarsPlayer player, Team team) {
         int index = teams.indexOf(team);

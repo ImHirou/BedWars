@@ -3,7 +3,6 @@ package me.secretlovers.bedwars.game;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import me.secretlovers.bedwars.game.team.Team;
 import org.bukkit.entity.Player;
 
 @Getter
