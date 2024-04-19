@@ -2,6 +2,7 @@ package me.secretlovers.bedwars.map;
 
 import lombok.Getter;
 import me.secretlovers.bedwars.game.resourses.Generator;
+import me.secretlovers.bedwars.utils.WorldUtil;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -31,7 +32,6 @@ public class LocalGameMap implements GameMap{
         if(loadOnInit) load();
 
         //TODO implement generator locations
-
     }
 
 
@@ -43,14 +43,14 @@ public class LocalGameMap implements GameMap{
                 sourceWorldFolder.getName() + "_active_" + System.currentTimeMillis()
         );
         try {
-            FileUtil.copy(sourceWorldFolder, activeWorldFolder);
+            WorldUtil.copyWorld(sourceWorldFolder, activeWorldFolder);
         } catch (Exception e) {
             Bukkit.getLogger().severe("Fail map load in GameMap from: " + sourceWorldFolder.getName());
             e.printStackTrace(System.err);
             return false;
         }
 
-        this.bukkitWorld = Bukkit.createWorld(new WorldCreator(activeWorldFolder.getName()));
+        bukkitWorld = Bukkit.getWorld(activeWorldFolder.getName());
 
         if (bukkitWorld != null) this.bukkitWorld.setAutoSave(false);
         return isLoaded();
