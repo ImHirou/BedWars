@@ -8,6 +8,7 @@ import me.secretlovers.bedwars.database.PlayerManager;
 import me.secretlovers.bedwars.game.Game;
 import me.secretlovers.bedwars.game.GameManager;
 import me.secretlovers.bedwars.game.trader.Trader;
+import me.secretlovers.bedwars.game.trader.TraderTab;
 import me.secretlovers.bedwars.listener.InventoryClick;
 import me.secretlovers.bedwars.listener.PlayerLeave;
 import me.secretlovers.bedwars.map.GameMap;
@@ -33,7 +34,7 @@ public final class BedWars extends JavaPlugin {
         plugin          = this;
         playerManager   = new PlayerManager(Vertx.vertx());
         gameManager     = new GameManager();
-        trader          = new Trader(Arrays.asList(null), map.getWorld().getSpawnLocation());
+        //trader          = new Trader(Arrays.asList(), map.getWorld().getSpawnLocation());
 
         initGameMapsFolder();
 

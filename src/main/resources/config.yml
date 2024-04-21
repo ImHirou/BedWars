@@ -1,0 +1,91 @@
+maps:
+  test:
+    maxPlayers: 4
+    generator:
+      diamond:
+        1:
+          x: 75
+          y: 100
+          z: 75
+        2:
+          x: 75
+          y: 100
+          z: 25
+        3:
+          x: 25
+          y: 100
+          z: 75
+        4:
+          x: 25
+          y: 100
+          z: 25
+      emerald:
+        1:
+          x: 48
+          y: 100
+          z: 52
+        2:
+          x: 52
+          y: 100
+          z: 48
+        3:
+          x: 52
+          y: 100
+          z: 52
+        4:
+          x: 48
+          y: 100
+          z: 48
+    teams:
+      RED:
+        spawn:
+          x: 100
+          y: 100
+          z: 0
+        generator:
+          x: 105
+          y: 102
+          z: 5
+        bed:
+          x: 100
+          y: 102
+          z: 5
+      BLUE:
+        spawn:
+          x: 0
+          y: 100
+          z: 100
+        generator:
+          x: 5
+          y: 102
+          z: 105
+        bed:
+          x: 0
+          y: 102
+          z: 105
+      GREEN:
+        spawn:
+          x: 0
+          y: 100
+          z: 0
+        generator:
+          x: 5
+          y: 102
+          z: 5
+        bed:
+          x: 0
+          y: 102
+          z: 5
+      YELLOW:
+        spawn:
+          x: 100
+          y: 100
+          z: 100
+        generator:
+          x: 105
+          y: 102
+          z: 105
+        bed:
+          x: 100
+          y: 102
+          z: 105

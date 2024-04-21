@@ -46,23 +46,11 @@ public class Game {
         if(this.gameState == GameState.PLAYING && (gameState == GameState.STARTING || gameState == GameState.WAITING)) return;
 
         switch (gameState) {
-
-            case UNKNOWN:
-                gameMap.load();
-                break;
-            case WAITING:
-                waitingPhase();
-                break;
-            case STARTING:
-                startingPhase();
-                break;
-            case PLAYING:
-                playingPhase();
-                break;
-            case FINISH:
-                finishPhase();
-                break;
-
+            case UNKNOWN -> gameMap.load();
+            case WAITING -> waitingPhase();
+            case STARTING -> startingPhase();
+            case PLAYING -> playingPhase();
+            case FINISH -> finishPhase();
         }
     }
 
@@ -84,9 +72,13 @@ public class Game {
         ((LocalGameMap) gameMap).getDiamondGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
         ((LocalGameMap) gameMap).getEmeraldGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
         for(Team team : teams) {
+            for(BedWarsPlayer player : team.getPlayers()) {
+                System.out.println(team.getSpawnLocation());
+                System.out.println(player.getNickname());
+                player.getPlayer().teleport(team.getSpawnLocation());
+            }
             team.getIronGenerator().getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
             team.getGoldGenerator().getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
-            team.getPlayers().forEach(player -> player.getPlayer().teleport(team.getSpawnLocation()));
         }
     }
     private void playingPhase() {
@@ -104,11 +96,11 @@ public class Game {
     public void removePlayer(BedWarsPlayer player) {
         players.remove(player);
         for(Team team : teams) {
-            team.getPlayers().forEach(bedWarsPlayer -> {
-                if(bedWarsPlayer == player) {
-                    team.getPlayers().remove(player);
+            if(!team.getPlayers().isEmpty()) {
+                for (BedWarsPlayer p : team.getPlayers()) {
+                    if (p == player) team.getPlayers().remove(player);
                 }
-            });
+            }
         }
     }
     private void playerChangeTeam(BedWarsPlayer player, Team team) {

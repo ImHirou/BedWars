@@ -1,6 +1,7 @@
 package me.secretlovers.bedwars.listener;
 
 import me.secretlovers.bedwars.BedWars;
+import me.secretlovers.bedwars.game.BedWarsPlayer;
 import me.secretlovers.bedwars.game.Game;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,11 +15,11 @@ public class PlayerLeave implements Listener {
 
         Player player = event.getPlayer();
         for(Game game : BedWars.plugin.getGameManager().getGames()) {
-            game.getPlayers().forEach(bedWarsPlayer -> {
-                if(bedWarsPlayer.getPlayer() == player) {
-                    game.removePlayer(bedWarsPlayer);
+            for(BedWarsPlayer p : game.getPlayers()) {
+                if(p.getPlayer() == player) {
+                    game.removePlayer(p);
                 }
-            });
+            }
         }
 
     }
