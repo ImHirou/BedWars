@@ -4,17 +4,22 @@ import lombok.Getter;
 import me.secretlovers.bedwars.BedWars;
 import me.secretlovers.bedwars.game.resourses.Generator;
 import me.secretlovers.bedwars.game.resourses.ResourseType;
+import me.secretlovers.bedwars.game.trader.Trader;
+import me.secretlovers.bedwars.game.trader.TraderEntity;
 import me.secretlovers.bedwars.utils.LocationUtil;
 import me.secretlovers.bedwars.utils.WorldUtil;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LocalGameMap implements GameMap{
@@ -26,6 +31,8 @@ public class LocalGameMap implements GameMap{
     private List<Generator> diamondGenerators = new ArrayList<>();
     @Getter
     private List<Generator> emeraldGenerators = new ArrayList<>();
+    @Getter
+    private List<TraderEntity> traders = new ArrayList<>();
 
     public LocalGameMap(File worldFolder, String worldName, boolean loadOnInit) {
         this.sourceWorldFolder = new File(
@@ -33,19 +40,35 @@ public class LocalGameMap implements GameMap{
                 worldName
         );
         this.worldName = worldName;
-        if(loadOnInit) load();
 
-        ConfigurationSection generatorSection = BedWars.plugin.getConfig().getConfigurationSection("maps").getConfigurationSection(worldName).getConfigurationSection("generator");
-        ConfigurationSection diamondSection = generatorSection.getConfigurationSection("diamond");
-        ConfigurationSection emeraldSection = generatorSection.getConfigurationSection("emerald");
+        if(loadOnInit) {
+            load();
 
-        for (String key : diamondSection.getKeys(false)) {
-            diamondGenerators.add(new Generator(600L, ResourseType.DIAMOND, LocationUtil.fromConfigurationSection(diamondSection.getConfigurationSection(key), bukkitWorld)));
+            ConfigurationSection generatorSection = BedWars.plugin.getConfig().getConfigurationSection("maps").getConfigurationSection(worldName).getConfigurationSection("generator");
+            ConfigurationSection diamondSection = generatorSection.getConfigurationSection("diamond");
+            ConfigurationSection emeraldSection = generatorSection.getConfigurationSection("emerald");
+
+            for (String key : diamondSection.getKeys(false)) {
+                diamondGenerators.add(new Generator(600L, ResourseType.DIAMOND, LocationUtil.fromConfigurationSection(diamondSection.getConfigurationSection(key), bukkitWorld)));
+            }
+            for (String key : emeraldSection.getKeys(false)) {
+                emeraldGenerators.add(new Generator(600L, ResourseType.EMERALD, LocationUtil.fromConfigurationSection(diamondSection.getConfigurationSection(key), bukkitWorld)));
+            }
+
+            ConfigurationSection traderSection = BedWars.plugin.getConfig().getConfigurationSection("maps").getConfigurationSection(worldName).getConfigurationSection("traders");
+            ConfigurationSection defaultTraderSection = traderSection.getConfigurationSection("default");
+            ConfigurationSection diamondTraderSection = traderSection.getConfigurationSection("diamond");
+
+            for (String key : defaultTraderSection.getKeys(false)) {
+                traders.add(new TraderEntity(((CraftWorld) bukkitWorld).getHandle(),
+                        LocationUtil.fromConfigurationSection(defaultTraderSection.getConfigurationSection(key), bukkitWorld), true));
+            }
+
+            for (String key : diamondTraderSection.getKeys(false)) {
+                traders.add(new TraderEntity(((CraftWorld) bukkitWorld).getHandle(),
+                        LocationUtil.fromConfigurationSection(diamondTraderSection.getConfigurationSection(key), bukkitWorld), false));
+            }
         }
-        for (String key : emeraldSection.getKeys(false)) {
-            emeraldGenerators.add(new Generator(600L, ResourseType.EMERALD, LocationUtil.fromConfigurationSection(diamondSection.getConfigurationSection(key), bukkitWorld)));
-        }
-
     }
 
 
@@ -75,6 +98,7 @@ public class LocalGameMap implements GameMap{
         System.out.println(activeWorldFolder.getAbsolutePath());
 
         if (bukkitWorld != null) this.bukkitWorld.setAutoSave(false);
+
         return isLoaded();
     }
 

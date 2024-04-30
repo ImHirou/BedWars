@@ -4,10 +4,19 @@ import lombok.Getter;
 import me.secretlovers.bedwars.BedWars;
 import me.secretlovers.bedwars.game.team.Team;
 import me.secretlovers.bedwars.game.team.TeamColor;
+import me.secretlovers.bedwars.game.trader.Trader;
+import me.secretlovers.bedwars.game.trader.TraderEntity;
 import me.secretlovers.bedwars.map.GameMap;
 import me.secretlovers.bedwars.map.LocalGameMap;
 import me.secretlovers.bedwars.utils.LocationUtil;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -71,6 +80,7 @@ public class Game {
     private void startingPhase() {
         ((LocalGameMap) gameMap).getDiamondGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
         ((LocalGameMap) gameMap).getEmeraldGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
+        ((LocalGameMap) gameMap).getTraders().forEach(TraderEntity::spawn);
         for(Team team : teams) {
             for(BedWarsPlayer player : team.getPlayers()) {
                 System.out.println(team.getSpawnLocation());
@@ -79,19 +89,24 @@ public class Game {
             }
             team.getIronGenerator().getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
             team.getGoldGenerator().getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
+            team.placeBed();
         }
     }
     private void playingPhase() {
 
     }
     private void finishPhase() {
+        for(BedWarsPlayer player : players) {
+            player.getPlayer().kickPlayer("game finished");
+        }
         gameMap.unload();
     }
 
     public void addPlayer(BedWarsPlayer player) {
+        player.setGameID(id);
         players.add(player);
         playerChangeTeam(player, teams.get(0));
-        waitingPhase();
+        changeGameState(GameState.WAITING);
     }
     public void removePlayer(BedWarsPlayer player) {
         players.remove(player);
@@ -108,8 +123,25 @@ public class Game {
         Team team1 = teams.get(index);
         if (team1 == null) return;
         if (team1.getMaxPlayers() > team1.getPlayers().size()) {
+            player.setTeam(teams.get(index).getTeamColor());
             teams.get(index).getPlayers().add(player);
         }
+    }
+
+    public BedWarsPlayer playerByNickname(String nickname) {
+        for(BedWarsPlayer player : players) {
+            if(player.getPlayer().getDisplayName().equals(nickname)) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    public Team teamByColor(TeamColor color) {
+        for(Team team : teams) {
+            if(team.getTeamColor() == color) return team;
+        }
+        return null;
     }
 
 }

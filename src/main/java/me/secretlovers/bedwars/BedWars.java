@@ -8,11 +8,14 @@ import me.secretlovers.bedwars.database.PlayerManager;
 import me.secretlovers.bedwars.game.Game;
 import me.secretlovers.bedwars.game.GameManager;
 import me.secretlovers.bedwars.game.trader.Trader;
+import me.secretlovers.bedwars.game.trader.TraderEntity;
 import me.secretlovers.bedwars.game.trader.TraderTab;
-import me.secretlovers.bedwars.listener.InventoryClick;
-import me.secretlovers.bedwars.listener.PlayerLeave;
+import me.secretlovers.bedwars.listener.*;
 import me.secretlovers.bedwars.map.GameMap;
 import me.secretlovers.bedwars.map.LocalGameMap;
+import net.minecraft.server.v1_12_R1.EntityTypes;
+import net.minecraft.server.v1_12_R1.EntityVillager;
+import net.minecraft.server.v1_12_R1.MinecraftKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -23,23 +26,21 @@ import java.util.List;
 public final class BedWars extends JavaPlugin {
 
     public static BedWars plugin;
-    private Trader trader;
     private PlayerManager playerManager;
     private GameManager gameManager;
     private final File gameMapsFolder = new File(getDataFolder(), "gameMaps");
-    private GameMap map;
 
     @Override
     public void onEnable() {
         plugin          = this;
         playerManager   = new PlayerManager(Vertx.vertx());
         gameManager     = new GameManager();
-        //trader          = new Trader(Arrays.asList(), map.getWorld().getSpawnLocation());
 
         initGameMapsFolder();
+        registerEntity();
+        Trader.initTraders();
 
-        getServer().getPluginManager().registerEvents(new PlayerLeave(),    this);
-        getServer().getPluginManager().registerEvents(new InventoryClick(), this);
+        registerEvents();
 
         getCommand("warp").setExecutor(new WarpCommand());
         getCommand("game").setExecutor(new GameCommand());
@@ -55,10 +56,18 @@ public final class BedWars extends JavaPlugin {
 
     private void initGameMapsFolder() {
         getDataFolder().mkdirs();
-
         if (!gameMapsFolder.exists()) gameMapsFolder.mkdirs();
-        map = new LocalGameMap(gameMapsFolder, "test", false);
-        System.out.println(gameMapsFolder.getAbsolutePath());
+    }
+    private void registerEvents() {
+        getServer().getPluginManager().registerEvents(new PlayerLeave(),         this);
+        getServer().getPluginManager().registerEvents(new InventoryClick(),      this);
+        getServer().getPluginManager().registerEvents(new InteractionListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockBreakListener(),  this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
+    }
+
+    private void registerEntity() {
+        EntityTypes.b.a(120, new MinecraftKey("TraderEntity"), TraderEntity.class);
     }
 
 }

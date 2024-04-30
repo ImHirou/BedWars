@@ -14,10 +14,14 @@ public class PlayerLeave implements Listener {
     public void onEvent(PlayerQuitEvent event) {
 
         Player player = event.getPlayer();
-        for(Game game : BedWars.plugin.getGameManager().getGames()) {
-            for(BedWarsPlayer p : game.getPlayers()) {
-                if(p.getPlayer() == player) {
-                    game.removePlayer(p);
+        if(!BedWars.plugin.getGameManager().getGames().isEmpty()) {
+            for (Game game : BedWars.plugin.getGameManager().getGames()) {
+                if(!game.getPlayers().isEmpty()) {
+                    for (BedWarsPlayer p : game.getPlayers()) {
+                        if (p.getPlayer().getDisplayName().equals(player.getDisplayName())) {
+                            game.removePlayer(p);
+                        }
+                    }
                 }
             }
         }

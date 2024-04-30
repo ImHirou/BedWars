@@ -3,6 +3,7 @@ package me.secretlovers.bedwars.game;
 import lombok.Getter;
 import me.secretlovers.bedwars.BedWars;
 import me.secretlovers.bedwars.map.LocalGameMap;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,17 @@ public class GameManager {
 
     public void removeGame(int index) {
         games.remove(index);
+    }
+
+    public Game findGameByPlayer(Player player) {
+        for(Game game : games) {
+            for(BedWarsPlayer bedWarsPlayer : game.getPlayers()) {
+                if(bedWarsPlayer.getPlayer().getDisplayName().equals(player.getDisplayName())) {
+                    return game;
+                }
+            }
+        }
+        return null;
     }
 
 

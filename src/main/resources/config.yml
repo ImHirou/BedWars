@@ -1,6 +1,17 @@
 maps:
   test:
     maxPlayers: 4
+    traders:
+      default:
+        1:
+          x: 0
+          y: 5
+          z: 0
+      diamond:
+        1:
+          x: 5
+          y: 5
+          z: 5
     generator:
       diamond:
         1:
@@ -89,3 +100,41 @@ maps:
           x: 100
           y: 102
           z: 105
+trader:
+  default:
+    tabs:
+      armor:
+        0:
+          slotType: tabChange
+          item: DIAMOND_SWORD
+          name: Weapon
+        1:
+          slotType: buyable
+          item: DIAMOND_CHESTPLATE
+          name: Chestplate
+          resourse: IRON
+          price: 4
+        2:
+          slotType: default
+          item: GLASS
+          name: " "
+      weapon:
+        0:
+          slotType: default
+          item: GLASS
+          name: " "
+        1:
+          slotType: tabChange
+          item: DIAMOND_CHESTPLATE
+          name: Armor
+        2:
+          slotType: buyable
+          item: DIAMOND_SWORD
+          name: Sword
+          resourse: GOLD
+          price: 2
+      tools:
+
+  diamond:
+    tabs:
+      upgrades:
