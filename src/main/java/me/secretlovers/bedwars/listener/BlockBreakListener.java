@@ -4,6 +4,7 @@ import me.secretlovers.bedwars.BedWars;
 import me.secretlovers.bedwars.game.BedWarsPlayer;
 import me.secretlovers.bedwars.game.Game;
 import me.secretlovers.bedwars.game.team.Team;
+import me.secretlovers.bedwars.utils.LocationUtil;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -17,28 +18,30 @@ public class BlockBreakListener implements Listener {
     public void onEvent(BlockBreakEvent event) {
 
         Player player = event.getPlayer();
-        Game game = BedWars.plugin.getGameManager().findGameByPlayer(player);
+        BedWarsPlayer bedWarsPlayer = BedWars.plugin.getGameManager().getPlayerByBukkitPlayer(player);
 
-        if(game == null) return;
+        if(bedWarsPlayer == null) return;
 
         switch (event.getBlock().getType()) {
             case WOOL, WOOD, ENDER_STONE -> {
             }
             case BED_BLOCK, BED -> {
-                BedWarsPlayer bedWarsPlayer = game.playerByNickname(player.getDisplayName());
+                Game game = BedWars.plugin.getGameManager().getGames().get(bedWarsPlayer.getGameID());
                 Team team = game.teamByColor(bedWarsPlayer.getTeam());
-                if (team.getBedLocation() == event.getBlock().getLocation() ||
-                        team.getBedLocation().getBlock().getRelative(BlockFace.EAST).getLocation() == event.getBlock().getLocation()) {
+                if (LocationUtil.isEqual(team.getBedLocation(), event.getBlock().getLocation()) ||
+                        LocationUtil.isEqual(team.getBedLocation().getBlock().getRelative(BlockFace.EAST).getLocation(), event.getBlock().getLocation())) {
                     event.setCancelled(true);
+                    team.placeBed();
                     return;
                 }
                 for (Team t : game.getTeams()) {
-                    if (t.getBedLocation() == event.getBlock().getLocation() ||
-                            t.getBedLocation().getBlock().getRelative(BlockFace.EAST).getLocation() == event.getBlock().getLocation()) {
+                    if (LocationUtil.isEqual(t.getBedLocation(), event.getBlock().getLocation()) ||
+                            LocationUtil.isEqual(t.getBedLocation().getBlock().getRelative(BlockFace.EAST).getLocation(), event.getBlock().getLocation())) {
                         t.setHasBed(false);
                         event.setCancelled(true);
-                        event.getBlock().setType(Material.AIR);
                         event.getBlock().getRelative(BlockFace.EAST).setType(Material.AIR);
+                        event.getBlock().setType(Material.AIR);
+                        return;
                     }
                 }
             }

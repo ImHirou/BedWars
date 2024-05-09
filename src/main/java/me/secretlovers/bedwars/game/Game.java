@@ -2,6 +2,7 @@ package me.secretlovers.bedwars.game;
 
 import lombok.Getter;
 import me.secretlovers.bedwars.BedWars;
+import me.secretlovers.bedwars.game.resourses.Generator;
 import me.secretlovers.bedwars.game.team.Team;
 import me.secretlovers.bedwars.game.team.TeamColor;
 import me.secretlovers.bedwars.game.trader.Trader;
@@ -78,8 +79,14 @@ public class Game {
         }.runTaskTimer(BedWars.plugin, 20L, 20L);
     }
     private void startingPhase() {
-        ((LocalGameMap) gameMap).getDiamondGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
-        ((LocalGameMap) gameMap).getEmeraldGenerators().forEach(generator -> generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L));
+        for(Generator generator : ((LocalGameMap) gameMap).getDiamondGenerators()) {
+            generator.getArmorStand().spawn();
+            generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
+        }
+        for(Generator generator : ((LocalGameMap) gameMap).getEmeraldGenerators()) {
+            generator.getArmorStand().spawn();
+            generator.getDropper().runTaskTimer(BedWars.plugin, 20L, 1L);
+        }
         ((LocalGameMap) gameMap).getTraders().forEach(TraderEntity::spawn);
         for(Team team : teams) {
             for(BedWarsPlayer player : team.getPlayers()) {
@@ -104,9 +111,10 @@ public class Game {
 
     public void addPlayer(BedWarsPlayer player) {
         player.setGameID(id);
+        BedWars.plugin.getGameManager().addPlayer(player);
         players.add(player);
-        playerChangeTeam(player, teams.get(0));
-        changeGameState(GameState.WAITING);
+        playerChangeTeam(player, teams.get(players.size()%4));
+        if(players.size() > 1) changeGameState(GameState.WAITING);
     }
     public void removePlayer(BedWarsPlayer player) {
         players.remove(player);

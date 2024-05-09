@@ -52,7 +52,7 @@ public class LocalGameMap implements GameMap{
                 diamondGenerators.add(new Generator(600L, ResourseType.DIAMOND, LocationUtil.fromConfigurationSection(diamondSection.getConfigurationSection(key), bukkitWorld)));
             }
             for (String key : emeraldSection.getKeys(false)) {
-                emeraldGenerators.add(new Generator(600L, ResourseType.EMERALD, LocationUtil.fromConfigurationSection(diamondSection.getConfigurationSection(key), bukkitWorld)));
+                emeraldGenerators.add(new Generator(600L, ResourseType.EMERALD, LocationUtil.fromConfigurationSection(emeraldSection.getConfigurationSection(key), bukkitWorld)));
             }
 
             ConfigurationSection traderSection = BedWars.plugin.getConfig().getConfigurationSection("maps").getConfigurationSection(worldName).getConfigurationSection("traders");
@@ -80,8 +80,6 @@ public class LocalGameMap implements GameMap{
                 sourceWorldFolder.getName() + "_active_" + System.currentTimeMillis()
         );
         if (!activeWorldFolder.exists()) activeWorldFolder.mkdirs();
-        System.out.println(sourceWorldFolder.getAbsolutePath());
-        System.out.println(activeWorldFolder.getAbsolutePath());
         try {
            FileUtils.copyDirectory(sourceWorldFolder, activeWorldFolder);
         } catch (Exception e) {
@@ -94,8 +92,6 @@ public class LocalGameMap implements GameMap{
         creator.createWorld();
 
         bukkitWorld = Bukkit.getWorld(activeWorldFolder.getName());
-        System.out.println(bukkitWorld);
-        System.out.println(activeWorldFolder.getAbsolutePath());
 
         if (bukkitWorld != null) this.bukkitWorld.setAutoSave(false);
 
@@ -104,13 +100,9 @@ public class LocalGameMap implements GameMap{
 
     @Override
     public void unload() {
-        if (bukkitWorld != null) Bukkit.unloadWorld(bukkitWorld, false);
+        WorldUtil.unloadWorld(bukkitWorld);
         if (activeWorldFolder != null) {
-            try {
-                FileUtils.deleteDirectory(activeWorldFolder);
-            } catch (IOException e) {
-                e.printStackTrace(System.err);
-            }
+            WorldUtil.deleteWorld(activeWorldFolder);
         }
         bukkitWorld = null;
         activeWorldFolder = null;

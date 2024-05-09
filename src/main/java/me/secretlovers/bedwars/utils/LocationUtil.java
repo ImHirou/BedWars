@@ -15,4 +15,8 @@ public class LocationUtil {
                 section.getDouble("z"));
     }
 
+    public boolean isEqual(Location first, Location second) {
+        return first.getX() == second.getX() && first.getY() == second.getY() && first.getZ() == second.getZ();
+    }
+
 }

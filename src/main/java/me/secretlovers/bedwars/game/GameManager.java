@@ -12,6 +12,7 @@ public class GameManager {
 
     public static int gameIndex = 0;
     private ArrayList<Game> games = new ArrayList<>();
+    private ArrayList<BedWarsPlayer> players = new ArrayList<>();
 
     public GameManager() {
 
@@ -26,6 +27,18 @@ public class GameManager {
         games.remove(index);
     }
 
+    public void addPlayer(BedWarsPlayer player) {
+        players.add(player);
+    }
+
+    public void removePlayer(Player player) {
+        for(BedWarsPlayer p : players) {
+            if(p.getPlayer() == player) {
+                players.remove(p);
+                return;
+            }
+        }
+    }
     public Game findGameByPlayer(Player player) {
         for(Game game : games) {
             for(BedWarsPlayer bedWarsPlayer : game.getPlayers()) {
@@ -37,6 +50,13 @@ public class GameManager {
         return null;
     }
 
-
+    public BedWarsPlayer getPlayerByBukkitPlayer(Player player) {
+        for(BedWarsPlayer p : players) {
+            if(p.getPlayer().getDisplayName().equals(player.getDisplayName())) {
+                return p;
+            }
+        }
+        return null;
+    }
 
 }

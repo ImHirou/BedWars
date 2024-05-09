@@ -5,6 +5,7 @@ import me.secretlovers.bedwars.game.BedWarsPlayer;
 import me.secretlovers.bedwars.game.Game;
 import me.secretlovers.bedwars.game.GameManager;
 import me.secretlovers.bedwars.game.GameState;
+import me.secretlovers.bedwars.game.team.Team;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -46,6 +47,17 @@ public class GameCommand implements CommandExecutor {
             if (args[0].equals("finish")) {
                 gameManager.getGames().get(Integer.parseInt(args[1])).changeGameState(GameState.FINISH);
                 return true;
+            }
+            if(args[0].equals("info")) {
+                Game game = gameManager.getGames().get(Integer.parseInt(args[1]));
+                for(Team team : game.getTeams()) {
+                    System.out.println(team.getTeamColor().toString() + " BED: " + team.isHasBed());
+                    System.out.println(team.getTeamColor().toString() + " GENERATOR: " + team.getIronGenerator().getLocation().getX() + " " + team.getIronGenerator().getLocation().getY() + " " + team.getIronGenerator().getLocation().getZ());
+                }
+                for(BedWarsPlayer player1 : game.getPlayers()) {
+                    System.out.println("PLAYER: " + player1.getPlayer().getDisplayName());
+                    System.out.println("PLAYER TEAM: " + player1.getTeam().toString());
+                }
             }
         }
 
